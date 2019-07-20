@@ -23,6 +23,11 @@ class SnippetList(generics.ListCreateAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
 
+    def perform_create(self, serializer):
+        """修改实例保存方法，并处理传入请求或请求URL中隐含的任何信息"""
+        serializer.save(owner=self.request.user)
+        # 序列化器的`create()`方法现在讲被传递一个附加的`owner`字段以及来自请求的验证数据。
+
 
 class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     """获取，更新或删除一个 code snippet。"""
