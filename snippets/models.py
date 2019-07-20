@@ -19,3 +19,6 @@ class Snippet(models.Model):
 
     class Mate:
         ordering = ['created']
+
+    def __str__(self):
+        return f"title:{self.title}, language:{self.language}"
