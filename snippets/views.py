@@ -13,7 +13,9 @@ request.data可以处理传入的json请求，但它也可以处理其他格式�
 from rest_framework import generics
 
 from .models import Snippet
-from .serializers import SnippetModelSerializer
+from .serializers import SnippetModelSerializer, UserModelSerializer
+
+from django.contrib.auth.models import User
 
 
 class SnippetList(generics.ListCreateAPIView):
@@ -26,3 +28,15 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     """获取，更新或删除一个 code snippet。"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
+
+
+class UserList(generics.ListAPIView):
+    """用户展示为只读视图"""
+    queryset = User.objects.all()
+    serializer_class = UserModelSerializer
+
+
+class UserDetail(generics.RetrieveAPIView):
+    """用户展示为只读视图"""
+    queryset = User.objects.all()
+    serializer_class = UserModelSerializer

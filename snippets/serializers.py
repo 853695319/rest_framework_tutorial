@@ -3,6 +3,7 @@ a Serializer class which gives you a powerful, generic way to control the output
 a ModelSerializer class which provides a useful shortcut for creating serializers that deal with model instances and querysets.
 """
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 
 
@@ -70,6 +71,17 @@ class SnippetModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Snippet
         fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
+
+
+class UserModelSerializer(serializers.ModelSerializer):
+    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Snippet.objects.all())
+    # !! 由于`snippets`在用户模型中是一个反向关联的关系。在使用`ModelSerializer`类时它默认不会被包含，
+    # 所以我们需要为它添加一个显式字段
+    # 定义model时，可以在ForeignKey 定义时设置related_name 参数来覆盖FOO_set 的名称
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'snippets')  # ForeignKey.related_name=snippets
 
 
 if __name__ == "__main__":
