@@ -18,7 +18,7 @@ from rest_framework.response import Response
 
 
 @api_view(['GET', 'POST'])
-def snippet_list(request):
+def snippet_list(request, format=None):
     """列出所有code snippet，或创建一个新的snippet。"""
     if request.method == 'GET':
         snippets = Snippet.objects.all()
@@ -34,7 +34,7 @@ def snippet_list(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def snippet_detail(request, pk):
+def snippet_detail(request, pk, format=None):
     """获取，更新或删除一个 code snippet。"""
     try:
         snippet = Snippet.objects.get(pk=pk)
