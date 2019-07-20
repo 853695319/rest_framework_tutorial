@@ -17,10 +17,12 @@ from .serializers import SnippetModelSerializer, UserModelSerializer
 
 from django.contrib.auth.models import User
 from rest_framework import permissions
+from .permissions import IsOwnerOrReadOnly
 
 
 class SnippetList(generics.ListCreateAPIView):
-    """列出所有code snippet，或创建一个新的snippet。"""
+    """列出所有code snippet，或创建一个新的snippet。
+    未注册用户只可以查看，注册用户才可以创建一个新的snippet"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -32,10 +34,11 @@ class SnippetList(generics.ListCreateAPIView):
 
 
 class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
-    """获取，更新或删除一个 code snippet。"""
+    """获取，更新或删除一个 code snippet。
+    未注册用户只可以查看，注册用户才可以更新或删除snippet"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 
 class UserList(generics.ListAPIView):
