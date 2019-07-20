@@ -19,6 +19,22 @@ from django.contrib.auth.models import User
 from rest_framework import permissions
 from .permissions import IsOwnerOrReadOnly
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    """API入口"""
+
+    # 1 使用REST框架的`reverse`功能来返回完全限定的URL
+    # 2 URL模式是通过方便的名称来标识的，需要在`snippets/urls.py`中声明
+    return Response(data={
+        'user': reverse('user-list', request=request, format=format),
+        "snippets": reverse('snippet-list', request=request, format=format)
+    })
+
 
 class SnippetList(generics.ListCreateAPIView):
     """
