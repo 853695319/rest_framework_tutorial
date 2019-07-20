@@ -64,10 +64,17 @@ OrderedDict([('title', ''), ('code', 'print "hello, world"'), ('linenos', False)
 """
 
 
-class SnippetModelSerializer(serializers.ModelSerializer):
+class SnippetModelSerializer(serializers.HyperlinkedModelSerializer):
     """ModelSerializer类并不会做任何特别神奇的事情， 他们只是创建序列化器类的快捷方式：
     1. 一组自动确定的字段
-    2. 默认简单实现的create()和update()方法"""
+    2. 默认简单实现的create()和update()方法
+
+    HyperlinkedModelSerializer 在实体之间使用超链接的方式
+    HyperlinkedModelSerializer 和 ModelSerializer 的区别
+    1 默认情况下不包含`id`字段
+    2 它包含`url`字段，使用`HyperlinkedIdentityField`
+    3 关联关系使用`HyperlinkedRelatedField`, 而不是`PrimaryKeyRelatedField`
+    """
 
     owner = serializers.ReadOnlyField(source='owner.username')
     """
@@ -79,21 +86,25 @@ class SnippetModelSerializer(serializers.ModelSerializer):
     无类型的`ReadOnlyField`始终是只读的，只能用于序列化表示，不能用于在反序列化时更新模型。
     我们也可以在这里使用`CharField(read_only=True)`
     """
+    highlight = serializers.HyperlinkedIdentityField(view_name='snippet-highlight', format='html')
+    # 因为已经包含了格式后缀的URL，例如`.json`，我们还需要在`highlight`字段上指出任何格式后缀的超链接
+    # 它应该使用`.html`后缀
 
     class Meta:
         model = Snippet
-        fields = ('id', 'title', 'code', 'linenos', 'language', 'style', 'owner')
+        fields = ('url', 'id', 'highlight', 'title', 'owner',
+                  'title', 'code', 'linenos', 'language', 'style')
 
 
-class UserModelSerializer(serializers.ModelSerializer):
-    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Snippet.objects.all())
+class UserModelSerializer(serializers.HyperlinkedModelSerializer):
+    snippets = serializers.HyperlinkedRelatedField(many=True, view_name='snippet-detail', read_only=True)
     # !! 由于`snippets`在用户模型中是一个反向关联的关系。在使用`ModelSerializer`类时它默认不会被包含，
     # 所以我们需要为它添加一个显式字段
     # 定义model时，可以在ForeignKey 定义时设置related_name 参数来覆盖FOO_set 的名称
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'snippets')  # ForeignKey.related_name=snippets
+        fields = ('url', 'id', 'username', 'snippets')  # ForeignKey.related_name=snippets
 
 
 if __name__ == "__main__":
