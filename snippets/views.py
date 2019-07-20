@@ -21,8 +21,10 @@ from .permissions import IsOwnerOrReadOnly
 
 
 class SnippetList(generics.ListCreateAPIView):
-    """列出所有code snippet，或创建一个新的snippet。
-    未注册用户只可以查看，注册用户才可以创建一个新的snippet"""
+    """
+    列出所有code snippet，或创建一个新的snippet。
+    未注册用户只可以查看，注册用户才可以创建一个新的snippet。
+    """
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
