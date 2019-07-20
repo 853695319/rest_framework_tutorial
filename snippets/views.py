@@ -12,49 +12,36 @@ request.data可以处理传入的json请求，但它也可以处理其他格式�
 """
 from .models import Snippet
 from .serializers import SnippetModelSerializer
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.http import Http404
+from rest_framework import mixins, generics
 
 
-class SnippetList(APIView):
+class SnippetList(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
     """列出所有code snippet，或创建一个新的snippet。"""
-    def get(self, request, format=None):
-        snippets = Snippet.objects.all()
-        serializer = SnippetModelSerializer(snippets, many=True)
-        return Response(serializer.data)
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
 
-    def post(self, request, format=None):
-        serializer = SnippetModelSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)  # mixins.ListModelMixin
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)  # mixins.CreateModelMixin
 
 
-class SnippetDetail(APIView):
+class SnippetDetail(mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.GenericAPIView):
     """获取，更新或删除一个 code snippet。"""
-    def get_object(self, pk):
-        try:
-            return Snippet.objects.get(pk=pk)
-        except Snippet.DoesNotExist:
-            return Http404  # exception
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
 
-    def get(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = SnippetModelSerializer(snippet)
-        return Response(data=serializer.data)
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)  # mixins.RetrieveModelMixin
 
-    def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = SnippetModelSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)  # mixins.UpdateModelMixin
 
-    def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)  # mixins.DestroyModelMixin
