@@ -23,6 +23,19 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+from rest_framework import renderers
+
+
+class SnippetHighlight(generics.GenericAPIView):
+    """高亮显示代码片段，HTML表示"""
+    queryset = Snippet.objects.all()
+    renderer_classes = [renderers.StaticHTMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        """返回对象实例的属性"""
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
+
 
 @api_view(['GET'])
 def api_root(request, format=None):

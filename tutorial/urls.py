@@ -18,6 +18,7 @@ from django.urls import path, include
 from snippets import views
 
 urlpatterns = [
+    path('', views.api_root),
     path('admin/', admin.site.urls),
     path('snippets/', include('snippets.urls')),
     path('user/', views.UserList.as_view()),
