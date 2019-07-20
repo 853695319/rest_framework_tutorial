@@ -9,6 +9,9 @@ return Response(data)  # 渲染成客户端请求的内容类型。
 注意，我们不再显式地将请求或响应绑定到给定的内容类型。
 request.data可以处理传入的json请求，但它也可以处理其他格式。
 同样，我们返回带有数据的响应对象，但允许REST框架将响应给我们渲染成正确的内容类型。
+
+`ViewSet` 和 `View` 几乎相同，不同之处在于`ViewSet`提供诸如`read`或`update`之类的 *操作*，
+而不是`get`或`put`等 *方法处理程序*
 """
 from rest_framework import generics
 
@@ -24,6 +27,9 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from rest_framework import renderers
+
+from rest_framework import viewsets
+from rest_framework.decorators import action
 
 
 class SnippetHighlight(generics.GenericAPIView):
@@ -49,36 +55,32 @@ def api_root(request, format=None):
     })
 
 
-class SnippetList(generics.ListCreateAPIView):
-    """
-    列出所有code snippet，或创建一个新的snippet。
-    未注册用户只可以查看，注册用户才可以创建一个新的snippet。
-    """
-    queryset = Snippet.objects.all()
-    serializer_class = SnippetModelSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class SnippetViewSet(viewsets.ModelViewSet):
+    """此视图自动提供`list`, `create`, `retrieve`, `update`和`destroy`操作
 
-    def perform_create(self, serializer):
-        """修改实例保存方法，并处理传入请求或请求URL中隐含的任何信息"""
-        serializer.save(owner=self.request.user)
-        # 序列化器的`create()`方法现在讲被传递一个附加的`owner`字段以及来自请求的验证数据。
-
-
-class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
-    """获取，更新或删除一个 code snippet。
-    未注册用户只可以查看，注册用户才可以更新或删除snippet"""
+    另外我们还提供了一个额外的`highlight`操作"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
+    # 使用`@action`装饰器创建一个名为`highlight`的自定义*操作*
+    # 这个装饰器可用于条件不符合标准`create`/`update`/`delete`样式的任何自定义路径
 
-class UserList(generics.ListAPIView):
-    """用户展示为只读视图"""
-    queryset = User.objects.all()
-    serializer_class = UserModelSerializer
+    # 默认情况小，使用`@action`装饰器的自定义操作将响应`GET`请求。
+    # 如果我们想要一个响应`POST`请求的动作，我们可以使用`method`参数
+
+    # 默认情况下，自定义操作的URL取决于方法名称本身。
+    # 如果要更改URL的构造方式，可以为装饰器设置url_path关键字参数
+    @action(detail=True, renderer_class=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
-class UserDetail(generics.RetrieveAPIView):
-    """用户展示为只读视图"""
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """只读 此视图自动提供`list`和`detail`操作"""
     queryset = User.objects.all()
     serializer_class = UserModelSerializer
