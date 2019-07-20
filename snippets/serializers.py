@@ -61,6 +61,17 @@ OrderedDict([('title', ''), ('code', 'print "hello, world"'), ('linenos', False)
 >>> serializer = SnippetSerializer(Snippet.objects.all(), many=True)
 >>> serializer.data
 """
+
+
+class SnippetModelSerializer(serializers.ModelSerializer):
+    """ModelSerializer类并不会做任何特别神奇的事情， 他们只是创建序列化器类的快捷方式：
+    1. 一组自动确定的字段
+    2. 默认简单实现的create()和update()方法"""
+    class Meta:
+        model = Snippet
+        fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
