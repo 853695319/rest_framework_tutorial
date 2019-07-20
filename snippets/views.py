@@ -16,12 +16,14 @@ from .models import Snippet
 from .serializers import SnippetModelSerializer, UserModelSerializer
 
 from django.contrib.auth.models import User
+from rest_framework import permissions
 
 
 class SnippetList(generics.ListCreateAPIView):
     """列出所有code snippet，或创建一个新的snippet。"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         """修改实例保存方法，并处理传入请求或请求URL中隐含的任何信息"""
@@ -33,6 +35,7 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     """获取，更新或删除一个 code snippet。"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class UserList(generics.ListAPIView):
