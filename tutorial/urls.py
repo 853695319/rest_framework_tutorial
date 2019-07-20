@@ -16,15 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from snippets import views
+from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     path('', views.api_root),
     path('admin/', admin.site.urls),
     path('snippets/', include('snippets.urls')),
-    path('user/', views.UserList.as_view()),
-    path('user/<int:pk>/', views.UserDetail.as_view()),
+    path('user/', views.UserList.as_view(), name='user-list'),
+    path('user/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
+    # 可浏览API的登录和注销视图
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
+urlpatterns = format_suffix_patterns(urlpatterns)
 """
 rest_framework.urls
 Login and logout views for the browsable API.
