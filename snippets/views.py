@@ -13,46 +13,15 @@ request.data可以处理传入的json请求，但它也可以处理其他格式�
 `ViewSet` 和 `View` 几乎相同，不同之处在于`ViewSet`提供诸如`read`或`update`之类的 *操作*，
 而不是`get`或`put`等 *方法处理程序*
 """
-from rest_framework import generics
-
-from .models import Snippet
-from .serializers import SnippetModelSerializer, UserModelSerializer
 
 from django.contrib.auth.models import User
-from rest_framework import permissions
-from .permissions import IsOwnerOrReadOnly
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
-
-from rest_framework import renderers
-
-from rest_framework import viewsets
+from rest_framework import permissions, renderers, viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
-
-class SnippetHighlight(generics.GenericAPIView):
-    """高亮显示代码片段，HTML表示"""
-    queryset = Snippet.objects.all()
-    renderer_classes = [renderers.StaticHTMLRenderer]
-
-    def get(self, request, *args, **kwargs):
-        """返回对象实例的属性"""
-        snippet = self.get_object()
-        return Response(snippet.highlighted)
-
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    """API入口"""
-
-    # 1 使用REST框架的`reverse`功能来返回完全限定的URL
-    # 2 URL模式是通过方便的名称来标识的，需要在`snippets/urls.py`中声明
-    return Response(data={
-        'user': reverse('user-list', request=request, format=format),
-        "snippets": reverse('snippet-list', request=request, format=format)
-    })
+from .models import Snippet
+from .permissions import IsOwnerOrReadOnly
+from .serializers import SnippetModelSerializer, UserModelSerializer
 
 
 class SnippetViewSet(viewsets.ModelViewSet):

@@ -1,23 +1,14 @@
-from django.urls import path
-from . import views
-from rest_framework import renderers
-
-snippet_list = views.SnippetViewSet.as_view(actions={'get': 'list', 'post': 'create'})
-snippet_detail = views.SnippetViewSet.as_view(actions={
-    'get': 'retrieve',
-    'put': 'update',
-    'patch': 'partial_update',
-    'delete': 'destroy'
-})
-snippet_highlight = views.SnippetViewSet.as_view(
-    actions={'get': 'highlight'},
-    renderer_classes=[renderers.StaticHTMLRenderer]
-)
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from snippets import views
 
 
+# 创建路由器并注册我们的视图。
+router = DefaultRouter()
+router.register(prefix=r'snippets', viewset=views.SnippetViewSet)
+router.register(prefix=r'users', viewset=views.UserViewSet)
+
+# API URL现在有路由器自动确定
 urlpatterns = [
-    path('', snippet_list, name='snippet-list'),
-    path('<int:pk>/', snippet_detail, name='snippet-detail'),
-    path('<int:pk>/highlight/', snippet_highlight, name='snippet-highlight')
+    path('', include(router.urls)),
 ]
-

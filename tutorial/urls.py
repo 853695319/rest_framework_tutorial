@@ -15,23 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from snippets import views
-from rest_framework.urlpatterns import format_suffix_patterns
-
-
-user_list = views.UserViewSet.as_view(actions={'get': 'list'})
-user_detail = views.UserViewSet.as_view(actions={'get': 'retrieve'})
 
 urlpatterns = [
-    path('', views.api_root),
     path('admin/', admin.site.urls),
-    path('snippets/', include('snippets.urls')),
-    path('user/', user_list, name='user-list'),
-    path('user/<int:pk>/', user_detail, name='user-detail'),
+    path('', include('snippets.urls')),
     # 可浏览API的登录和注销视图
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
-urlpatterns = format_suffix_patterns(urlpatterns)
 """
 rest_framework.urls
 Login and logout views for the browsable API.
