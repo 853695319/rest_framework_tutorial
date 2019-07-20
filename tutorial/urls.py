@@ -21,5 +21,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('snippets/', include('snippets.urls')),
     path('user/', views.UserList.as_view()),
-    path('user/<int:pk>', views.UserDetail.as_view())
+    path('user/<int:pk>', views.UserDetail.as_view()),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
+"""
+rest_framework.urls
+Login and logout views for the browsable API.
+模式`api-auth`部分实际上可以是你要使用的任何URL。
+唯一的限制是包含的URL必须使用`rest_framework`命名空间。
+在Django1.9以上的版本中，REST框架将设置命名空间，因此你可以将其删除
+"""
