@@ -71,7 +71,7 @@ class SnippetViewSet(viewsets.ModelViewSet):
 
     # 默认情况下，自定义操作的URL取决于方法名称本身。
     # 如果要更改URL的构造方式，可以为装饰器设置url_path关键字参数
-    @action(detail=True, renderer_class=[renderers.StaticHTMLRenderer])
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
     def highlight(self, request, *args, **kwargs):
         snippet = self.get_object()
         return Response(snippet.highlighted)
